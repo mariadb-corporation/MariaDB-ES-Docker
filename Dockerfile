@@ -14,8 +14,7 @@ RUN curl -L ${SETUP_SCRIPT} > /tmp/es_repo_setup && chmod +x /tmp/es_repo_setup 
     /tmp/es_repo_setup  --token=${ES_TOKEN} --apply --verbose --skip-maxscale \
     --mariadb-server-version=${ES_VERSION} && rm -fv /tmp/es_repo_setup
 #
-RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-    yum -y install pwgen MariaDB-server MariaDB-client MariaDB-backup && \
+RUN yum -y install MariaDB-server MariaDB-client MariaDB-backup && \
     yum clean all && rm -fv /etc/yum.repos.d/mariadb.repo && rm -fr /var/lib/mysql && \
     mkdir /var/lib/mysql && echo "ES_VERSION=${ES_VERSION}" >> /etc/IMAGEINFO
 #

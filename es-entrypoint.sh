@@ -86,7 +86,7 @@ if [ "${1}" = "mysqld" ]; then
   if [[ -n "${MARIADB_RANDOM_ROOT_PASSWORD}" ]]; then
     MARIADB_ROOT_PASSWORD="'"
     while [[ "${MARIADB_ROOT_PASSWORD}" = *"'"* ]] || [[ "${MARIADB_ROOT_PASSWORD}" = *"\\"* ]]; do
-      export MARIADB_ROOT_PASSWORD="$(pwgen -1 32 -y)"
+      export MARIADB_ROOT_PASSWORD="$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64)"
     done
     message "=-> GENERATED ROOT PASSWORD: ${MARIADB_ROOT_PASSWORD}"
   fi
