@@ -111,7 +111,7 @@ if [ "${1}" = "mysqld" ]; then
     case "${_file}" in
       *.sh)
         message "Running shell script ${_file}"
-        . "${_f}"
+        . "${_file}"
         ;;
       *.sql)
         message "Running SQL file ${_file}"
