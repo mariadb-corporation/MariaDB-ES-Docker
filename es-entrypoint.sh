@@ -36,7 +36,7 @@ if [[ "${1:0:1}" = '-' ]]; then
 fi
 #
 . /etc/IMAGEINFO
-message "Preparing MariaDB Enterprise ${ES_VERSION} server..."
+message "Preparing MariaDB Enterprise Server ${ES_VERSION}..."
 #
 if [[ -z "${MARIADB_ROOT_PASSWORD}" ]] && [[ -z "${MARIADB_ALLOW_EMPTY_PASSWORD}" ]] && [[ -z "${MARIADB_RANDOM_ROOT_PASSWORD}" ]]; then
   error 'Database will not be initialized because password option is not specified'
@@ -69,16 +69,15 @@ if [ "${1}" = "mysqld" ]; then
   mysql=( mysql --protocol=socket -uroot -hlocalhost --socket="${SOCKET}" )
 
   for second in {30..0}; do
-    [[ ${second} -eq 0 ]] && error 'MariaDB Enterprise server failed to start!' &&  exit 1
+    [[ ${second} -eq 0 ]] && error 'MariaDB Enterprise Server failed to start!' &&  exit 1
     if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
       break
     fi
-    message 'Bringing up MariaDB Enterprise server...'
+    message 'Bringing up MariaDB Enterprise Server...'
     sleep 1
   done
 #
   if [[ -z "${MARIADB_INITDB_SKIP_TZINFO}" ]]; then
-    # sed is for https://bugs.mysql.com/bug.php?id=20545
     message "Loading TZINFO"
     mysql_tzinfo_to_sql /usr/share/zoneinfo | "${mysql[@]}" mysql
   fi
@@ -141,14 +140,14 @@ if [ "${1}" = "mysqld" ]; then
 #
 ###
   if ! kill -s TERM "${PID}" || ! wait "${PID}"; then
-    error "MariaDB Enterprise server init process failed!"
+    error "MariaDB Enterprise Server init process failed!"
     exit 1
   fi
 #
 fi
 #
 # Finally
-message "MariaDB Enterprise ${ES_VERSION} is ready for start!"
+message "MariaDB Enterprise Server ${ES_VERSION} is ready for start!"
 touch /es-init.completed
 #
 exec gosu mysql "$@" 2>&1 | tee -a /var/log/mariadb-error.log
