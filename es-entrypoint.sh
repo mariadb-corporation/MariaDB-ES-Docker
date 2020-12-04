@@ -3,6 +3,8 @@
 # Copyright (c) 2020, MariaDB Corporation. All rights reserved.
 #
 INITDBDIR="/es-initdb.d"
+# should we preload jemalloc?
+JEMALLOC=${JEMALLOC:-0}
 #
 set -ex
 #
@@ -149,9 +151,13 @@ fi
 # Finally
 message "MariaDB Enterprise Server ${ES_VERSION} is ready for start!"
 touch /es-init.completed
-#
-exec gosu mysql "$@" 2>&1 | tee -a /var/log/mariadb-error.log
-
+# Jemalloc
+JEMALLOC_SCRIPT="/usr/bin/jemalloc.sh"
+if [[ -f "${JEMALLOC_SCRIPT}" ]] && [[ "${JEMALLOC}" -ne 0 ]]; then
+  exec "${JEMALLOC_SCRIPT}" gosu mysql "$@" 2>&1 | tee -a /var/log/mariadb-error.log
+else
+  exec gosu mysql "$@" 2>&1 | tee -a /var/log/mariadb-error.log
+fi
 
 
 
