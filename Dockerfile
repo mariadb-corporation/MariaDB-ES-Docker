@@ -5,7 +5,7 @@ FROM centos:7
 #
 LABEL maintainer="MariaDB Corporation Ab"
 #
-ENV GOSU_VERSION=1.12
+ARG GOSU_VERSION=1.12
 ARG ES_TOKEN
 ARG ES_VERSION=10.5
 ARG SETUP_SCRIPT=https://dlm.mariadb.com/enterprise-release-helpers/mariadb_es_repo_setup

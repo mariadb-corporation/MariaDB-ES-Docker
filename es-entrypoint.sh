@@ -2,11 +2,19 @@
 #
 # Copyright (c) 2020, MariaDB Corporation. All rights reserved.
 #
+set -e
+#
+. /etc/IMAGEINFO
+#
+PRODUCT="MariaDB Enterprise Server ${ES_VERSION}"
+#
 INITDBDIR="/es-initdb.d"
 # should we preload jemalloc?
 JEMALLOC=${JEMALLOC:-0}
+# Allowed values are <user-defined password>, RANDOM, EMPTY
+MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-RANDOM}
 #
-set -ex
+MARIADB_INITDB_TZINFO=${MARIADB_INITDB_TZINFO:-1}
 #
 function message {
   echo "[Init message]: ${@}"
@@ -37,14 +45,8 @@ if [[ "${1:0:1}" = '-' ]]; then
   set -- mysqld "${@}"
 fi
 #
-. /etc/IMAGEINFO
-message "Preparing MariaDB Enterprise Server ${ES_VERSION}..."
-#
-if [[ -z "${MARIADB_ROOT_PASSWORD}" ]] && [[ -z "${MARIADB_ALLOW_EMPTY_PASSWORD}" ]] && [[ -z "${MARIADB_RANDOM_ROOT_PASSWORD}" ]]; then
-  error 'Database will not be initialized because password option is not specified'
-  error 'You need to specify one of MARIADB_ROOT_PASSWORD, MARIADB_ALLOW_EMPTY_PASSWORD and MARIADB_RANDOM_ROOT_PASSWORD'
-  exit 1
-fi
+
+message "Preparing ${PRODUCT}..."
 #
 if [ "${1}" = "mysqld" ]; then
 #
@@ -75,16 +77,16 @@ if [ "${1}" = "mysqld" ]; then
     if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
       break
     fi
-    message 'Bringing up MariaDB Enterprise Server...'
+    message 'Bringing up ${PRODUCT}...'
     sleep 1
   done
 #
-  if [[ -z "${MARIADB_INITDB_SKIP_TZINFO}" ]]; then
+  if [[ "${MARIADB_INITDB_TZINFO}" -eq 1 ]]; then
     message "Loading TZINFO"
     mysql_tzinfo_to_sql /usr/share/zoneinfo | "${mysql[@]}" mysql
   fi
 #
-  if [[ -n "${MARIADB_RANDOM_ROOT_PASSWORD}" ]]; then
+  if [[ "${MARIADB_ROOT_PASSWORD}" = RANDOM ]]; then
     MARIADB_ROOT_PASSWORD="'"
     while [[ "${MARIADB_ROOT_PASSWORD}" = *"'"* ]] || [[ "${MARIADB_ROOT_PASSWORD}" = *"\\"* ]]; do
       export MARIADB_ROOT_PASSWORD="$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64)"
@@ -93,7 +95,7 @@ if [ "${1}" = "mysqld" ]; then
   fi
 #
   if [[ -n "${MARIADB_DATABASE}" ]]; then
-    message "Trying to create database with name ${MARIADB_DATABASE}"
+    message "Trying to create database ${MARIADB_DATABASE}"
     echo "CREATE DATABASE IF NOT EXISTS '${MARIADB_DATABASE}'" | "${mysql[@]}"
   fi
 #
@@ -133,7 +135,7 @@ if [ "${1}" = "mysqld" ]; then
 # Reading password from docker filesystem (bind-mounted directory or file added during build)
   [[ -z "${MARIADB_ROOT_HOST}" ]] && MARIADB_ROOT_HOST='%'
   [[ -f "${MARIADB_ROOT_PASSWORD}" ]] && MARIADB_ROOT_PASSWORD=$(cat "${MARIADB_ROOT_PASSWORD}")
-  if [[ -n "${MARIADB_ROOT_PASSWORD}" ]]; then
+  if [[ "${MARIADB_ROOT_PASSWORD}" != EMPTY ]]; then
     message "ROOT password has been specified for image, trying to update account..."
     echo "CREATE USER IF NOT EXISTS 'root'@'${MARIADB_ROOT_HOST}' IDENTIFIED BY '${MARIADB_ROOT_PASSWORD}';" | "${mysql[@]}"
     echo "GRANT ALL ON *.* TO 'root'@'${MARIADB_ROOT_HOST}' WITH GRANT OPTION;" | "${mysql[@]}"
@@ -142,18 +144,19 @@ if [ "${1}" = "mysqld" ]; then
 #
 ###
   if ! kill -s TERM "${PID}" || ! wait "${PID}"; then
-    error "MariaDB Enterprise Server init process failed!"
+    error "${PRODUCT} init process failed!"
     exit 1
   fi
 #
 fi
 #
 # Finally
-message "MariaDB Enterprise Server ${ES_VERSION} is ready for start!"
+message "${PRODUCT} is ready for start!"
 touch /es-init.completed
 # Jemalloc
 JEMALLOC_SCRIPT="/usr/bin/jemalloc.sh"
 if [[ -f "${JEMALLOC_SCRIPT}" ]] && [[ "${JEMALLOC}" -ne 0 ]]; then
+  message "Starting ${PRODUCT} with Jemalloc library..."
   exec "${JEMALLOC_SCRIPT}" gosu mysql "$@" 2>&1 | tee -a /var/log/mariadb-error.log
 else
   exec gosu mysql "$@" 2>&1 | tee -a /var/log/mariadb-error.log
