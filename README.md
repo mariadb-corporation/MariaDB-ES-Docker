@@ -11,3 +11,4 @@
 | MARIADB_ROOT_HOST | '%' | Valid hostname |
 | MARIADB_INITDB_TZINFO | 1 | 0, 1 |
 | JEMALLOC | 0 | 0, 1 |
+| IMAGEDEBUG | 0 | 0, 1 |

@@ -36,4 +36,3 @@ COPY es-entrypoint.sh /es-entrypoint.sh
 COPY zz_es-docker.cnf /etc/my.cnf.d/
 ENTRYPOINT ["/es-entrypoint.sh"]
 EXPOSE 3306/tcp
-CMD ["mysqld"]
