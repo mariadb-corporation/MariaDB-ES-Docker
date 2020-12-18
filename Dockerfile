@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2020, MariaDB Corporation. All rights reserved.
 #
-FROM centos:7
+FROM registry.access.redhat.com/ubi8
 #
 LABEL maintainer="MariaDB Corporation Ab"
 #
@@ -14,7 +14,8 @@ RUN curl -L ${SETUP_SCRIPT} > /tmp/es_repo_setup && chmod +x /tmp/es_repo_setup 
     /tmp/es_repo_setup  --token=${ES_TOKEN} --apply --verbose --skip-maxscale \
     --mariadb-server-version=${ES_VERSION} && rm -fv /tmp/es_repo_setup
 #
-RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
+    yum -y install http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/boost-program-options-1.66.0-10.el8.x86_64.rpm && \
     yum -y install jemalloc && \
     yum -y install MariaDB-server MariaDB-client MariaDB-backup && \
     yum clean all && rm -fv /etc/yum.repos.d/mariadb.repo && rm -fr /var/lib/mysql && \
