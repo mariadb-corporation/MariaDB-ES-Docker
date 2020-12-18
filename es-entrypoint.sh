@@ -15,8 +15,10 @@ INITDBDIR="/es-initdb.d"
 JEMALLOC=${JEMALLOC:-0}
 # Allowed values are <user-defined password>, RANDOM, EMPTY
 MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-RANDOM}
+[[ ${MARIADB_ALLOW_EMPTY_PASSWORD:-0} -eq 1 ]] && MARIADB_ROOT_PASSWORD=EMPTY
 #
 MARIADB_INITDB_TZINFO=${MARIADB_INITDB_TZINFO:-1}
+[[ ${MARIADB_INITDB_SKIP_TZINFO:-0} -eq 1 ]] && MARIADB_INITDB_TZINFO=0
 #
 MARIADB_DB=mysql
 MARIADB_SYSUSER=mysql
@@ -38,6 +40,9 @@ function message {
 #
 function error {
   echo >&2 "[Init ERROR]: ${@}"
+}
+function warning {
+  echo >&2 "[Init WARNING]: ${@}"
 }
 #
 function validate_cfg {
@@ -105,6 +110,11 @@ if [[ "${MARIADB_ROOT_PASSWORD}" = RANDOM ]]; then
     export MARIADB_ROOT_PASSWORD="$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64)"
   done
   message "=-> GENERATED ROOT PASSWORD: ${MARIADB_ROOT_PASSWORD}"
+fi
+#
+if [[ "${MARIADB_ROOT_PASSWORD}" = EMPTY ]]; then
+  warning "=-> Warning! Warning! Warning!"
+  warning "EMPTY password is specified for image, your container is insecure!!!"
 fi
 #
 if [[ -n "${MARIADB_DATABASE}" ]]; then

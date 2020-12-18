@@ -12,3 +12,14 @@
 | MARIADB_INITDB_TZINFO | 1 | 0, 1 |
 | JEMALLOC | 0 | 0, 1 |
 | IMAGEDEBUG | 0 | 0, 1 |
+
+
+## Compatibility parameters
+
+| Variable | Default| Allowed values |
+| --- | --- | --- |
+| MARIADB_ALLOW_EMPTY_PASSWORD | 0 |0, 1 |
+| MARIADB_RANDOM_ROOT_PASSWORD | Yes | Ignored |
+| MARIADB_INITDB_SKIP_TZINFO | 0 |0, 1 |
+
+
