@@ -4,7 +4,7 @@
 #
 ES_TOKEN=
 ES_VERSION=
-ES_REGISTRY=docker.mariadb.com/es-server
+ES_REGISTRY=gcr.io/downloads-234321/es-server
 LATEST=10.5
 PUSH=0
 #
@@ -13,6 +13,10 @@ TAG_LATEST=0
 function help {
   echo "Usage:"
   echo "${0} --es-version <VERSION> --es-token <TOKEN>"
+  echo "Additional options are:"
+  echo -e "\t--es-registry"
+  echo -e "\t--verbose"
+  echo -e "\t--push"
 }
 #
 function error {
@@ -50,7 +54,6 @@ while [[ ${#} -gt 0 ]]; do
     ;;
     *)
       error "Wrong option ${1}"
-      exit 1
     ;;
   esac
 done
@@ -86,7 +89,4 @@ if [[ ${PUSH} -eq 1 ]]; then
 fi
 #
 docker stop ${CONTAINER} ||:
-
-
-
-
+#
