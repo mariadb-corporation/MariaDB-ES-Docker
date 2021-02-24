@@ -16,6 +16,7 @@ ARG REPOSITORY_KEY
 # Add script to setup the private repository
 COPY scripts/setup-custom-repository.sh /tmp/setup-custom-repository.sh
 #
+RUN echo ${REPOSITORY}
 RUN if [ -z "${REPOSITORY}" ]; then \
         curl -L ${SETUP_SCRIPT} > /tmp/es_repo_setup && chmod +x /tmp/es_repo_setup && \
         /tmp/es_repo_setup  --token=${ES_TOKEN} --apply --verbose --skip-maxscale \
