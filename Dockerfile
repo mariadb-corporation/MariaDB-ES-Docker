@@ -26,7 +26,7 @@ RUN if [ -z "${REPOSITORY}" ]; then \
         /tmp/setup-custom-repository.sh --repository ${REPOSITORY} --repository-key ${REPOSITORY_KEY}; \
     fi
 #
-RUN dnf module disable mysql mariadb
+RUN dnf -y module disable mysql mariadb
 RUN yum clean all
 RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
     yum -y install http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/boost-program-options-1.66.0-10.el8.x86_64.rpm && \
