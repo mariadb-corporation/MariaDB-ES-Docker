@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 usage() {
   echo <<INFO "$(basename "${0}")" --repository REPOSITORY --repository-key KEY
     --repository REPOSITORY path to the MaxScale repository
@@ -57,3 +57,4 @@ name = MariaDB
 baseurl = $repository
 gpgcheck = 1
 enabled = 1" > /etc/yum.repos.d/mariadb.repo
+cat /etc/yum.repos.d/mariadb.repo
