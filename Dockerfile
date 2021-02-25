@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2020, MariaDB Corporation. All rights reserved.
 #
-FROM centos:8
+FROM FROM registry.access.redhat.com/ubi8
 #
 LABEL maintainer="MariaDB Corporation Ab"
 #
