@@ -119,7 +119,7 @@ fi
 #
 if [[ -n "${MARIADB_DATABASE}" ]]; then
   message "Trying to create database ${MARIADB_DATABASE}"
-  echo "CREATE DATABASE IF NOT EXISTS '${MARIADB_DATABASE}'" | "${mariadb[@]}"
+  echo "CREATE DATABASE IF NOT EXISTS \`${MARIADB_DATABASE}\`" | "${mariadb[@]}"
 fi
 #
 if [[ -n "${MARIADB_USER}" ]] && [[ -n "${MARIADB_PASSWORD}" ]]; then
@@ -127,7 +127,7 @@ if [[ -n "${MARIADB_USER}" ]] && [[ -n "${MARIADB_PASSWORD}" ]]; then
   echo "CREATE USER '${MARIADB_USER}'@'%' IDENTIFIED BY '${MARIADB_PASSWORD}';" | "${mariadb[@]}"
   if [[ -n "${MARIADB_DATABASE}" ]]; then
     message "Trying to set all privileges on ${MARIADB_DATABASE} to ${MARIADB_USER}..."
-    echo "GRANT ALL ON '${MARIADB_DATABASE}'.* TO '${MARIADB_USER}'@'%';" | "${mariadb[@]}"
+    echo "GRANT ALL ON \`${MARIADB_DATABASE}\`.* TO '${MARIADB_USER}'@'%';" | "${mariadb[@]}"
   fi
 else
   message "Skipping MariaDB user creation, both MARIADB_USER and MARIADB_PASSWORD must be set"
