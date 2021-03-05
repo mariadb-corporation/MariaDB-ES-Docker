@@ -16,7 +16,7 @@ RUN curl -L ${SETUP_SCRIPT} > /tmp/es_repo_setup && chmod +x /tmp/es_repo_setup 
 #
 RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
     yum -y install http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/boost-program-options-1.66.0-10.el8.x86_64.rpm && \
-    yum -y install jemalloc hostname && \
+    yum -y install jemalloc hostname pwgen && \
     yum -y install MariaDB-server MariaDB-client MariaDB-backup && \
     yum clean all && rm -fv /etc/yum.repos.d/mariadb.repo && rm -fr /var/lib/mysql && \
     mkdir /var/lib/mysql && echo "ES_VERSION=${ES_VERSION}" >> /etc/IMAGEINFO

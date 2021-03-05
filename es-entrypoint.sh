@@ -107,7 +107,7 @@ fi
 if [[ "${MARIADB_ROOT_PASSWORD}" = RANDOM ]]; then
   MARIADB_ROOT_PASSWORD="'"
   while [[ "${MARIADB_ROOT_PASSWORD}" = *"'"* ]] || [[ "${MARIADB_ROOT_PASSWORD}" = *"\\"* ]]; do
-    export MARIADB_ROOT_PASSWORD="$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64)"
+    export MARIADB_ROOT_PASSWORD="$(pwgen -scny -r \'\"\\\/\; 32 1)"
   done
   message "=-> GENERATED ROOT PASSWORD: ${MARIADB_ROOT_PASSWORD}"
 fi
