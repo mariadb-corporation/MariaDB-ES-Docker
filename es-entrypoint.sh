@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2020, MariaDB Corporation. All rights reserved.
 #
-set -e
+set -ex
 #
 [[ ${IMAGEDEBUG:-0} -eq 1 ]] && set -x
 #
@@ -11,6 +11,8 @@ set -e
 PRODUCT="MariaDB Enterprise Server ${ES_VERSION}"
 #
 INITDBDIR="/es-initdb.d"
+# Jemalloc
+JEMALLOC_SCRIPT="/usr/bin/jemalloc.sh"
 # should we preload jemalloc?
 JEMALLOC=${JEMALLOC:-0}
 # Allowed values are <user-defined password>, RANDOM, EMPTY
@@ -33,6 +35,10 @@ MDB_TZINFOTOSQL=mariadb-tzinfo-to-sql
 [[ -x "${MARIADB_SERVER}" ]] || MARIADB_SERVER=mysqld
 [[ -x "${MDB_INSTALL_DB}" ]] || MDB_INSTALL_DB=mysql_install_db
 [[ -x "${MDB_TZINFOTOSQL}" ]] || MDB_TZINFOTOSQL=mysql_tzinfo_to_sql
+#
+if [[ "${1:0:1}" = '-' ]] || [[ -z "${1:0:1}" ]]; then
+  set -- ${MARIADB_SERVER} "${@}"
+fi
 #
 function message {
   echo "[Init message]: ${@}"
@@ -62,9 +68,21 @@ function get_cfg_value {
   "${@}" --verbose --help --log-bin-index="$(mktemp -u)" 2>/dev/null | grep "^$conf " | awk '{ print $2 }'
 }
 #
-if [[ "${1:0:1}" = '-' ]] || [[ -z "${1:0:1}" ]]; then
-  set -- ${MARIADB_SERVER} "${@}"
+function start_server {
+  if [[ -f "${JEMALLOC_SCRIPT}" ]] && [[ "${JEMALLOC}" -ne 0 ]]; then
+    message "Starting ${PRODUCT} with Jemalloc library..."
+    exec "${JEMALLOC_SCRIPT}" gosu ${MARIADB_SYSUSER} "$@" 2>&1 | tee -a /var/log/mariadb-error.log
+  else
+    exec gosu ${MARIADB_SYSUSER} "$@" 2>&1 | tee -a /var/log/mariadb-error.log
+  fi
+}
+#########
+if [[ -f /es-init.completed ]]; then
+  start_server "$@"
+  exit ${?}
 fi
+#########
+
 #
 message "Preparing ${PRODUCT}..."
 #
@@ -174,11 +192,5 @@ fi
 # Finally
 message "${PRODUCT} is ready for start!"
 touch /es-init.completed
-# Jemalloc
-JEMALLOC_SCRIPT="/usr/bin/jemalloc.sh"
-if [[ -f "${JEMALLOC_SCRIPT}" ]] && [[ "${JEMALLOC}" -ne 0 ]]; then
-  message "Starting ${PRODUCT} with Jemalloc library..."
-  exec "${JEMALLOC_SCRIPT}" gosu ${MARIADB_SYSUSER} "$@" 2>&1 | tee -a /var/log/mariadb-error.log
-else
-  exec gosu ${MARIADB_SYSUSER} "$@" 2>&1 | tee -a /var/log/mariadb-error.log
-fi
+#
+start_server "$@"

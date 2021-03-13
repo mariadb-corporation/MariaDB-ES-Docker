@@ -2,6 +2,8 @@
 #
 #set -e
 #
+set -x
+#
 ES_TOKEN=
 ES_VERSION=
 ES_REGISTRY=gcr.io/downloads-234321/es-server
