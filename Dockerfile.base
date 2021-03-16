@@ -31,9 +31,8 @@ RUN gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F8
     && chmod +x /usr/local/bin/gosu
 #
 RUN mkdir /es-initdb.d
-#
-VOLUME /var/lib/mysql
 COPY es-entrypoint.sh /es-entrypoint.sh
 COPY zz_es-docker.cnf /etc/my.cnf.d/
+VOLUME /var/lib/mysql
 ENTRYPOINT ["/es-entrypoint.sh"]
 EXPOSE 3306/tcp

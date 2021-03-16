@@ -1,0 +1,10 @@
+#
+# Copyright (c) 2020, MariaDB Corporation. All rights reserved.
+#
+FROM es-server:base
+#
+LABEL maintainer="MariaDB Corporation Ab"
+#
+VOLUME /var/lib/mysql
+ENTRYPOINT ["/es-entrypoint.sh"]
+EXPOSE 3306/tcp

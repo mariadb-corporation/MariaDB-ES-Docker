@@ -1,7 +1,5 @@
 #!/bin/bash
 #
-#set -e
-#
 set -x
 #
 ES_TOKEN=
@@ -63,13 +61,14 @@ done
 [[ -z ${ES_TOKEN:-} ]]   && help && error "TOKEN is not specified!"
 [[ -z ${ES_VERSION:-} ]] && help && error "VERSION is not specified!"
 #
-docker build --no-cache -t ${ES_REGISTRY}:${ES_VERSION} \
+docker build --no-cache -t es-server:base \
     --build-arg ES_TOKEN=${ES_TOKEN} \
     --build-arg ES_VERSION=${ES_VERSION} \
-    -f Dockerfile .
+    -f Dockerfile.base .
 #
 # Run test and additional tagging
-CONTAINER=$(docker run -d --rm ${ES_REGISTRY}:${ES_VERSION})
+docker stop es-server ||:
+CONTAINER=$(docker run -d --rm --name=es-server es-server:base)
 [[ -z ${CONTAINER:-} ]] && error "Unable to start container! Please check the log!"
 #
 # Give it a time to start
@@ -80,6 +79,15 @@ for _sec in {1..60}; do
 done
 #
 [[ -z ${FULLVERSION:-} ]] && error "Unable to determine ES version from launched container!"
+# Image is valid, let's transform it to single-layer
+# Transform built image to a single-layer one to delete all intermediate layers and token
+docker export --output=es-server.tar es-server
+cat es-server.tar | docker import - es-server:base
+rm -fv es-server.tar
+#
+# Build production image from previously merged layers of basic one
+docker build --no-cache -t ${ES_REGISTRY}:${ES_VERSION} -f Dockerfile.server .
+#
 docker tag ${ES_REGISTRY}:${ES_VERSION} ${ES_REGISTRY}:${FULLVERSION}
 #
 [[ ${TAG_LATEST} -eq 1 ]] && docker tag ${ES_REGISTRY}:${FULLVERSION} ${ES_REGISTRY}:latest
@@ -91,4 +99,5 @@ if [[ ${PUSH} -eq 1 ]]; then
 fi
 #
 docker stop ${CONTAINER} ||:
+docker rmi -f es-server:base
 #
