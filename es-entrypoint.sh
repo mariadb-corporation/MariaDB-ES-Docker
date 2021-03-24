@@ -11,6 +11,7 @@ set -ex
 PRODUCT="MariaDB Enterprise Server ${ES_VERSION}"
 #
 INITDBDIR="/es-initdb.d"
+INIT_MARKER="/var/lib/mysql/es-init.completed"
 # Jemalloc
 JEMALLOC_SCRIPT="/usr/bin/jemalloc.sh"
 # should we preload jemalloc?
@@ -77,7 +78,7 @@ function start_server {
   fi
 }
 #########
-if [[ -f /es-init.completed ]]; then
+if [[ -f ${INIT_MARKER} ]]; then
   start_server "$@"
   exit ${?}
 fi
@@ -191,6 +192,6 @@ fi
 #
 # Finally
 message "${PRODUCT} is ready for start!"
-touch /es-init.completed
+touch ${INIT_MARKER}
 #
 start_server "$@"
