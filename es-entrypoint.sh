@@ -26,16 +26,16 @@ MARIADB_INITDB_TZINFO=${MARIADB_INITDB_TZINFO:-1}
 MARIADB_DB=mysql
 MARIADB_SYSUSER=mysql
 #
-MARIADB_CLIENT=mariadb
-MARIADB_SERVER=mariadbd
-MDB_INSTALL_DB=mariadb-install-db
-MDB_TZINFOTOSQL=mariadb-tzinfo-to-sql
+MARIADB_CLIENT=$(which mariadb)
+MARIADB_SERVER=$(which mariadbd)
+MDB_INSTALL_DB=$(which mariadb-install-db)
+MDB_TZINFOTOSQL=$(which mariadb-tzinfo-to-sql)
 #
 # Backward compatibility with 10.2 and 10.3
-[[ -x "${MARIADB_CLIENT}" ]] || MARIADB_CLIENT=mysql
-[[ -x "${MARIADB_SERVER}" ]] || MARIADB_SERVER=mysqld
-[[ -x "${MDB_INSTALL_DB}" ]] || MDB_INSTALL_DB=mysql_install_db
-[[ -x "${MDB_TZINFOTOSQL}" ]] || MDB_TZINFOTOSQL=mysql_tzinfo_to_sql
+[[ -z "${MARIADB_CLIENT}" ]] || MARIADB_CLIENT=mysql
+[[ -z "${MARIADB_SERVER}" ]] || MARIADB_SERVER=mysqld
+[[ -z "${MDB_INSTALL_DB}" ]] || MDB_INSTALL_DB=mysql_install_db
+[[ -z "${MDB_TZINFOTOSQL}" ]] || MDB_TZINFOTOSQL=mysql_tzinfo_to_sql
 #
 if [[ "${1:0:1}" = '-' ]] || [[ -z "${1:0:1}" ]]; then
   set -- ${MARIADB_SERVER} "${@}"
